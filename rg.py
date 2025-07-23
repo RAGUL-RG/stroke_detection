@@ -43,7 +43,7 @@ def preprocess_input(data: dict):
         smoking_map.get(data["smoking_status"].lower(), 0),
     ]]
 
-train_df = pd.read_csv("test.csv")
+train_df = pd.read_csv("test.csv", encoding="latin1")
 train_df = train_df.fillna(train_df.mean(numeric_only=True))
 
 features = [
