@@ -93,6 +93,7 @@ def predict(data: StrokeInput):
 
     if input_data["avg_glucose_level"] > 180 or input_data["bmi"] > 38:
         prediction = 1
+        probability = max(probability, 0.85)
 
     reasons = []
     flags = []
