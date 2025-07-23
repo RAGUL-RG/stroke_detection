@@ -126,7 +126,7 @@ def predict(
 
     recommendations = []
     if reasons:
-        prompt = f"The patient has the following risk factors: {', '.join(reasons)}. Provide personalized and practical health recommendations."
+        prompt = f"The patient has the following risk factors: {', '.join(reasons)}. Provide a summarized personalized and practical health recommendations with bulletins ."
         gemini_response = model_gemini.generate_content(prompt)
         gemini_recommendation = gemini_response.text.strip()
         recommendations = [gemini_recommendation]
