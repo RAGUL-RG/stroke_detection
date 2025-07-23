@@ -6,8 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 import google.generativeai as genai
+import os
 
-genai.configure(api_key="AIzaSyBl0uePdOuYxYwVYxiXpVQ-Smr0HNXv-mA") 
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model_gemini = genai.GenerativeModel("gemini-1.5-flash")
 app = FastAPI()
 app.add_middleware(
