@@ -9,4 +9,4 @@ services:
       - key: PORT
         value: 10000
       - key: GOOGLE_API_KEY
-        value:
+        value: AIzaSyBl0uePdOuYxYwVYxiXpVQ-Smr0HNXv-mA
