@@ -8,7 +8,7 @@ import google.generativeai as genai
 import os
 
 # Configure Gemini
-genai.configure(api_key=os.getenv("AIzaSyBl0uePdOuYxYwVYxiXpVQ-Smr0HNXv-mA"))
+genai.configure(api_key="AIzaSyBl0uePdOuYxYwVYxiXpVQ-Smr0HNXv-mA")
 model_gemini = genai.GenerativeModel("gemini-1.5-flash")
 
 app = FastAPI()
