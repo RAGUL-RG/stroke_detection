@@ -92,9 +92,10 @@ def predict(
 
     processed = preprocess_input(input_data)
     input_scaled = scaler.transform(processed)
-    prediction = int(model.predict(input_scaled)[0])
+    probability = model.predict_proba(input_scaled)[0][1]  
+    prediction = int(model.predict(input_scaled)[0])  # default model prediction
     if avg_glucose_level > 180 or bmi > 38:
-        prediction = 1
+        prediction = 1  # override if critically high
 
     reasons = []
     recommendations = []
@@ -113,12 +114,14 @@ def predict(
         recommendations.append("Consult a cardiologist and follow heart-healthy routines.")
 
     if avg_glucose_level > 180:
-        flags.append("Very high average glucose level (>180 mg/dL)")
+        reasons.append("Very high average glucose level (>180 mg/dL)")
         recommendations.append("Control blood sugar through diet, exercise, and medical supervision.")
+        flags.append("High Glucose")
 
     if bmi > 35:
-        flags.append("Very high BMI (>35)")
+        reasons.append("Very high BMI (>35)")
         recommendations.append("Adopt a healthy diet and regular physical activity to reduce weight.")
+        flags.append("High BMI")
 
     if smoking_status.lower() == "smokes":
         reasons.append("Smoker")
@@ -126,7 +129,10 @@ def predict(
 
     return {
         "prediction": prediction,
-        "reasons": reasons if prediction == 1 else [],
-        "recommendations": recommendations if prediction == 1 else [],
-        "flags": flags  
+        "probability": round(probability, 3),
+        "reasons": reasons,
+        "recommendations": recommendations,
+        "flags": flags
     }
+
+
