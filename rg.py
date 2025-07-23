@@ -91,19 +91,20 @@ def predict(data: StrokeInput):
     probability = model.predict_proba(input_scaled)[0][1]
     prediction = int(model.predict(input_scaled)[0])
 
-    if input_data["avg_glucose_level"] > 180 or input_data["bmi"] > 38:
-        prediction = 1
-        probability = max(probability, 0.85)
-
     reasons = []
     flags = []
-
+    force_high_risk = False
+    
     if input_data["avg_glucose_level"] > 180:
         flags.append("Critical Glucose (>180 mg/dL)")
         reasons.append("Very high blood glucose level (>180 mg/dL)")
+        force_high_risk = True
+
     if input_data["bmi"] > 38:
         flags.append("Severely High BMI (>38)")
         reasons.append("BMI above healthy range (>38)")
+        force_high_risk = True
+
     if input_data["age"] > 60:
         reasons.append("Age above 60")
     if input_data["hypertension"].lower() == "yes":
@@ -112,7 +113,9 @@ def predict(data: StrokeInput):
         reasons.append("Has heart disease")
     if input_data["smoking_status"].lower() == "smokes":
         reasons.append("Smoker")
-
+    if force_high_risk:
+        prediction = 1
+        probability = max(probability, 0.9)
     if reasons:
         prompt = f"The patient has the following risk factors: {', '.join(reasons)}. Provide personalized and practical health recommendations."
         gemini_response = model_gemini.generate_content(prompt)
@@ -127,3 +130,4 @@ def predict(data: StrokeInput):
         "flags": flags,
         "recommendations": final_recommendations
     }
+
