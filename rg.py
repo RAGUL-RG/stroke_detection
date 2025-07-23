@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 
 app = FastAPI()
@@ -61,7 +61,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y, test_size=0.2, random_state=42
 )
 
-model = LogisticRegression()
+model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
 @app.get("/predict")
@@ -93,26 +93,33 @@ def predict(
     processed = preprocess_input(input_data)
     input_scaled = scaler.transform(processed)
     prediction = int(model.predict(input_scaled)[0])
+    if avg_glucose_level > 180 or bmi > 38:
+        prediction = 1
 
-    # Rule-based explanation and advice
     reasons = []
     recommendations = []
+    flags = []
 
     if age > 60:
         reasons.append("Age above 60")
         recommendations.append("Maintain regular checkups and a healthy lifestyle.")
+
     if hypertension.lower() == "yes":
         reasons.append("Has hypertension")
-        recommendations.append("Reduce salt, manage stress, and take prescribed meds.")
+        recommendations.append("Reduce salt, manage stress, and take prescribed medications.")
+
     if heart_disease.lower() == "yes":
         reasons.append("Has heart disease")
         recommendations.append("Consult a cardiologist and follow heart-healthy routines.")
+
     if avg_glucose_level > 180:
-        reasons.append("High average glucose level")
-        recommendations.append("Control blood sugar through diet, exercise, and medication.")
-    if bmi > 30:
-        reasons.append("High BMI (overweight)")
-        recommendations.append("Adopt a calorie-conscious diet and regular physical activity.")
+        flags.append("Very high average glucose level (>180 mg/dL)")
+        recommendations.append("Control blood sugar through diet, exercise, and medical supervision.")
+
+    if bmi > 35:
+        flags.append("Very high BMI (>35)")
+        recommendations.append("Adopt a healthy diet and regular physical activity to reduce weight.")
+
     if smoking_status.lower() == "smokes":
         reasons.append("Smoker")
         recommendations.append("Seek help to quit smoking and avoid tobacco.")
@@ -120,5 +127,6 @@ def predict(
     return {
         "prediction": prediction,
         "reasons": reasons if prediction == 1 else [],
-        "recommendations": recommendations if prediction == 1 else []
+        "recommendations": recommendations if prediction == 1 else [],
+        "flags": flags  
     }
