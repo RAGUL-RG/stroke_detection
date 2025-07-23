@@ -8,7 +8,6 @@ from sklearn.preprocessing import StandardScaler
 import google.generativeai as genai
 import os
 
-
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model_gemini = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -20,6 +19,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 class StrokeInput(BaseModel):
     sex: str
     age: float
@@ -31,7 +31,7 @@ class StrokeInput(BaseModel):
     avg_glucose_level: float
     bmi: float
     smoking_status: str
-    
+
 def preprocess_input(data: dict):
     sex_map = {"male": 1, "female": 0}
     hypertension_map = {"yes": 1, "no": 0}
@@ -60,6 +60,7 @@ def preprocess_input(data: dict):
         smoking_map.get(data["smoking_status"].lower(), 0),
     ]]
 
+
 train_df = pd.read_csv("test.csv")
 train_df = train_df.fillna(train_df.mean(numeric_only=True))
 
@@ -76,8 +77,10 @@ X_scaled = scaler.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y, test_size=0.2, random_state=42
 )
+
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
+
 
 @app.post("/predict")
 def predict(data: StrokeInput):
@@ -87,18 +90,19 @@ def predict(data: StrokeInput):
 
     probability = model.predict_proba(input_scaled)[0][1]
     prediction = int(model.predict(input_scaled)[0])
-    
+
+    if input_data["avg_glucose_level"] > 180 or input_data["bmi"] > 38:
+        prediction = 1
+
     reasons = []
     flags = []
-    
+
     if input_data["avg_glucose_level"] > 180:
         flags.append("Critical Glucose (>180 mg/dL)")
         reasons.append("Very high blood glucose level (>180 mg/dL)")
-        prediction = 1
     if input_data["bmi"] > 38:
         flags.append("Severely High BMI (>38)")
         reasons.append("BMI above healthy range (>38)")
-        prediction = 1
     if input_data["age"] > 60:
         reasons.append("Age above 60")
     if input_data["hypertension"].lower() == "yes":
@@ -107,6 +111,7 @@ def predict(data: StrokeInput):
         reasons.append("Has heart disease")
     if input_data["smoking_status"].lower() == "smokes":
         reasons.append("Smoker")
+
     if reasons:
         prompt = f"The patient has the following risk factors: {', '.join(reasons)}. Provide personalized and practical health recommendations."
         gemini_response = model_gemini.generate_content(prompt)
