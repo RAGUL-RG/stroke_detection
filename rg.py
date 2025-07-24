@@ -127,7 +127,7 @@ def predict(
     recommendations = []
     if reasons:
         prompt = (
-                   "The patient has the following risk factors: " + ", ".join(reasons) + ". Please summarize the health recommendations in **clear bullet points**, "
+                   "The patient has the following stroke risk factors: " + ", ".join(reasons) + ". Please summarize the health recommendations in **clear bullet points**, "
                    "not more than 10 points. Each point should be short, specific, and start with an emoji if relevant "
                    "(e.g., 🩺 for checkups, 🥗 for diet, 🚭 for no smoking, ⚖️ for weight, 🧘 for stress). "
                     "Only return the list without any introduction or conclusion."
