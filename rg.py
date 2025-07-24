@@ -115,10 +115,10 @@ def predict(
     if heart_disease.lower() == "yes":
         reasons.append("Has heart disease")
     if avg_glucose_level > 180:
-        reasons.append("Very high average glucose level (>180 mg/dL)")
+        reasons.append("Very high glucose level")
         flags.append("High Glucose")
     if bmi > 35:
-        reasons.append("Very high BMI (>35)")
+        reasons.append("Very high BMI")
         flags.append("High BMI")
     if smoking_status.lower() == "smokes":
         reasons.append("Smoker")
