@@ -126,10 +126,16 @@ def predict(
 
     recommendations = []
     if reasons:
-        prompt = f"The patient has the following risk factors: {', '.join(reasons)}. Please summarize and provide personalized, practical health recommendations in bullet points (not more than 10 points)."
+        prompt = (
+                   "The patient has the following risk factors: " + ", ".join(reasons) + ". Please summarize the health recommendations in **clear bullet points**, "
+                   "not more than 10 points. Each point should be short, specific, and start with an emoji if relevant "
+                   "(e.g., 🩺 for checkups, 🥗 for diet, 🚭 for no smoking, ⚖️ for weight, 🧘 for stress). "
+                    "Only return the list without any introduction or conclusion."
+)
+
         gemini_response = model_gemini.generate_content(prompt)
         gemini_recommendation = gemini_response.text.strip()
-        recommendations = [gemini_recommendation]
+        recommendations = gemini_recommendation.strip().splitlines()
 
     return {
         "prediction": prediction,
